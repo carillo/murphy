@@ -76,6 +76,7 @@ class MyRobot(wpilib.SampleRobot):
             x = self.stick.getX()
             y = self.stick.getY()
 
+
             # gobbler
             if self.stick.getRawButton(4) and self.speed_gobbler < 1:
                 self.speed_gobbler += .005
@@ -119,12 +120,14 @@ class MyRobot(wpilib.SampleRobot):
                 gobbler = -.5
             else:
                 gobbler = self.speed_gobbler
+
+            increase_speed = self.stick.getZ()
             
             r = curve(max(min(x + y, 1.0), -1.0))
             l = curve(max(min(y - x, 1.0), -1.0))
             
-            self.motor_left.set(-.5 * l)
-            self.motor_right.set(.5 * r)
+            self.motor_left.set((-.5 * l) * (1 + increase_speed))
+            self.motor_right.set((.5 * r ) * (1 + increase_speed))
             self.motor_gobbler.set(gobbler )
             self.motor_shooter.set(-self.speed_shooter)
             self.motor_climber.set(-self.speed_climber)
