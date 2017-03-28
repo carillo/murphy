@@ -15,6 +15,7 @@ import sys
 import wpilib
 import logging
 from time import time
+from networktables import NetworkTables
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -66,6 +67,11 @@ class MyRobot(wpilib.SampleRobot):
         self.speed_mooover = 0
         self.button_servo = False
         self.gear_servo = False
+        self.camera_button = False
+        self.alternate_camera_on = False
+
+        #Network Tables
+        self.sd = NetworkTables.getTable("SmartDashboard/DB")
 
     def disabled(self):
         '''Called when the robot is disabled'''
@@ -193,6 +199,14 @@ class MyRobot(wpilib.SampleRobot):
             
             x = .75 * self.stick.getX()
             y = self.stick.getY()
+
+            # camera switch button (reverse vs inside cam)
+            camera_button_press = bool(self.stick.getRawButton(1))
+            if not self.camera_button and camera_button_press:
+                # rising edge
+                self.alternate_camera_on = not self.alternate_camera_on
+                self.sd.putBoolean("Button 0", self.alternate_camera_on)
+            self.camera_button = camera_button_press
 
 
             # gobbler
