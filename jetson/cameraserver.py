@@ -1,4 +1,9 @@
+#!/usr/bin/env python3
+
+import numpy as np
+from time import time
 from cscore import CameraServer
+from networktables import NetworkTables
 
 def main():
 
@@ -7,9 +12,34 @@ def main():
     cs.enableLogging()
     
     # Enable capturing (waiting for a streaming client to connect)
-    cs.startAutomaticCapture(dev=0, name='Jetson Camera 1')
-    cs.startAutomaticCapture(dev=2, name='Jetson Camera 2')
-    cs.waitForever()
+    camera0 = cs.startAutomaticCapture(dev=0, name='Jetson Camera 0')
+    camera1 = cs.startAutomaticCapture(dev=1, name='Jetson Camera 1')
+    # cs.startAutomaticCapture(dev=2, name='Jetson Camera 2')
+
+    camera0.setResolution(160, 120)
+    camera1.setResolution(160, 120)
+
+    cvSink0 = cs.getVideo(camera=camera0)
+    cvSink1 = cs.getVideo(camera=camera1)
+
+    outputStream = cs.putVideo("Swappable", 160, 120)
+
+    img = np.zeros(shape=(120, 160, 3), dtype=np.uint8)
+
+    sd = NetworkTables.getTable("SmartDashboard/DB") 
+
+    while True:
+        if sd.getBoolean("Button 0", False):
+            sink = cvSink0
+        else:
+            sink = cvSink1
+
+        t, img = sink.grabFrame(img)
+        if t == 0:
+            outputStream.notifyError(sink.getError())
+            continue
+
+        outputStream.putFrame(img)
     
     
 if __name__ == '__main__':
@@ -19,7 +49,6 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     
     # Point networktables to the RoboRIO server
-    from networktables import NetworkTables
     NetworkTables.initialize(server='10.57.28.2')     
 
     main()
