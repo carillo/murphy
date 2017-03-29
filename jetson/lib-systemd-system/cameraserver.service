@@ -1,0 +1,13 @@
+[Unit]
+Description=FRC Murphy Cameraserver
+After=multi-user.target
+
+[Service]
+Type=idle
+Restart=always
+RestartSec=1
+ExecStart=/usr/bin/sudo -u ubuntu /usr/bin/python3 /home/ubuntu/murphy/jetson/cameraserver.py > /home/ubuntu/murphy/jetson/cameraserver.log 2>&1
+
+[Install]
+WantedBy=multi-user.target
+
