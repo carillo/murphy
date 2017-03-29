@@ -80,9 +80,11 @@ class MyRobot(wpilib.SampleRobot):
 
     def autonomous(self):
 
-        if 0:
+        if self.sd.getBoolean("Button 1", False):
+            logging.info("Running 'straight' mode")
             self.autonomous_straight()
         else:
+            logging.info("Running 'diagonal' mode")
             self.autonomous_diagonal()
 
     def autonomous_straight(self):
